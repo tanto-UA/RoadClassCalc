@@ -737,6 +737,42 @@
             height: 18px;
             fill: currentColor;
         }
+
+        /* Param explanation helpers */
+        .param-help-text {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-top: 6px;
+        }
+        
+        .param-help-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            background: rgba(59, 130, 246, 0.02);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .param-help-table th, .param-help-table td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .param-help-table th {
+            background: rgba(59, 130, 246, 0.05);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        
+        .param-help-table tr:last-child td {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -832,6 +868,39 @@
                             <button class="pill-btn" data-value="0">Moderate</button>
                             <button class="pill-btn" data-value="-1">Low</button>
                         </div>
+                        <div class="param-help-text">
+                            For main traffic routes and highways, the traffic volume classification is split based on the layout of the road (multilane vs. two-lane):
+                        </div>
+                        <table class="param-help-table">
+                            <thead>
+                                <tr>
+                                    <th>Volume</th>
+                                    <th>Motorways &amp; Multilane</th>
+                                    <th>Two-Lane Routes</th>
+                                    <th>V<sub>W</sub></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>High</strong></td>
+                                    <td>&gt; 65% of max capacity</td>
+                                    <td>&gt; 45% of max capacity</td>
+                                    <td>+1</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Moderate</strong></td>
+                                    <td>35% to 65% of max capacity</td>
+                                    <td>15% to 45% of max capacity</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Low</strong></td>
+                                    <td>&lt; 35% of max capacity</td>
+                                    <td>&lt; 15% of max capacity</td>
+                                    <td>-1</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div class="param-group">
                         <div class="param-header"><label>Traffic Composition</label><span class="weight-badge" id="badge-M-composition">0</span></div>
@@ -852,6 +921,13 @@
                         <div class="pill-select-group custom-select-group" data-param="junction" data-type="M">
                             <button class="pill-btn active active-primary" data-value="1">High</button>
                             <button class="pill-btn" data-value="0">Moderate</button>
+                        </div>
+                        <div class="param-help-text">
+                            Junction density is defined as the average number of intersections or junctions per kilometre along the road segment:
+                            <ul style="margin-left: 16px; margin-top: 4px; display: flex; flex-direction: column; gap: 2px;">
+                                <li><strong>High (&gt; 3 per km)</strong>: Typically urban routes with high frequency of cross streets. (V<sub>W</sub> = +1)</li>
+                                <li><strong>Moderate (&le; 3 per km)</strong>: Inter-urban roads, highways, or suburban routes with spaced-out junctions. (V<sub>W</sub> = 0)</li>
+                            </ul>
                         </div>
                     </div>
                     <div class="param-group">
