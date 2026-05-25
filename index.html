@@ -303,16 +303,20 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 10px 8px;
+            padding: 8px 4px;
             border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 500;
             font-family: inherit;
             transition: var(--transition);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 44px;
         }
 
         .pill-btn:hover {
@@ -858,7 +862,8 @@
                         <div class="pill-select-group custom-select-group" data-param="speed" data-type="M">
                             <button class="pill-btn" data-value="2">> 100 km/h</button>
                             <button class="pill-btn" data-value="1">70 - 100 km/h</button>
-                            <button class="pill-btn active active-primary" data-value="0">&lt; 70 km/h</button>
+                            <button class="pill-btn active active-primary" data-value="-1">40 - 70 km/h</button>
+                            <button class="pill-btn" data-value="-2">≤ 40 km/h</button>
                         </div>
                     </div>
                     <div class="param-group">
@@ -905,6 +910,7 @@
                     <div class="param-group">
                         <div class="param-header"><label>Traffic Composition</label><span class="weight-badge" id="badge-M-composition">0</span></div>
                         <div class="pill-select-group custom-select-group" data-param="composition" data-type="M">
+                            <button class="pill-btn" data-value="2">Mixed (High % Non-Mot.)</button>
                             <button class="pill-btn active active-primary" data-value="1">Mixed</button>
                             <button class="pill-btn" data-value="0">Motorised Only</button>
                         </div>
@@ -944,6 +950,10 @@
                             <button class="pill-btn" data-value="0">Moderate</button>
                             <button class="pill-btn" data-value="-1">Low</button>
                         </div>
+                        <div class="param-help-text">
+                            <strong>High:</strong> shopping windows, advertisement expressions, sport fields, station storage areas.<br>
+                            <strong>Moderate:</strong> normal situation.
+                        </div>
                     </div>
                     <div class="param-group">
                         <div class="param-header"><label>Navigational Task</label><span class="weight-badge" id="badge-M-navigation">0</span></div>
@@ -951,6 +961,11 @@
                             <button class="pill-btn" data-value="2">Very Difficult</button>
                             <button class="pill-btn active active-primary" data-value="1">Difficult</button>
                             <button class="pill-btn" data-value="0">Easy</button>
+                        </div>
+                        <div class="param-help-text">
+                            <strong>Very Difficult:</strong> High-stress environment. Extremely complex geometry, non-existent visual guidance, and multiple simultaneous hazards.<br>
+                            <strong>Difficult:</strong> Complex layout requiring active processing. High junction density, poor natural guidance, and high traffic/pedestrian volumes.<br>
+                            <strong>Easy:</strong> Predictable layout, clear signage, simple geometry, and minimal conflict points. Low cognitive load.
                         </div>
                     </div>
                 </div>
@@ -960,9 +975,10 @@
                     <div class="param-group">
                         <div class="param-header"><label>Speed</label><span class="weight-badge" id="badge-C-speed">0</span></div>
                         <div class="pill-select-group custom-select-group" data-param="speed" data-type="C">
-                            <button class="pill-btn" data-value="2">> 100 km/h</button>
-                            <button class="pill-btn" data-value="1">70 - 100 km/h</button>
-                            <button class="pill-btn active active-primary" data-value="0">&lt; 70 km/h</button>
+                            <button class="pill-btn" data-value="3">Very High >100 km/h</button>
+                            <button class="pill-btn" data-value="2">High 70-100</button>
+                            <button class="pill-btn active active-primary" data-value="0">Mod. 40-70</button>
+                            <button class="pill-btn" data-value="-1">Low < 40</button>
                         </div>
                     </div>
                     <div class="param-group">
@@ -976,6 +992,7 @@
                     <div class="param-group">
                         <div class="param-header"><label>Traffic Composition</label><span class="weight-badge" id="badge-C-composition">0</span></div>
                         <div class="pill-select-group custom-select-group" data-param="composition" data-type="C">
+                            <button class="pill-btn" data-value="2">Mixed (High % Non-Mot.)</button>
                             <button class="pill-btn active active-primary" data-value="1">Mixed</button>
                             <button class="pill-btn" data-value="0">Motorised Only</button>
                         </div>
@@ -994,6 +1011,10 @@
                             <button class="pill-btn" data-value="0">Moderate</button>
                             <button class="pill-btn" data-value="-1">Low</button>
                         </div>
+                        <div class="param-help-text">
+                            <strong>High:</strong> shopping windows, advertisement expressions, sport fields, station storage areas.<br>
+                            <strong>Moderate:</strong> normal situation.
+                        </div>
                     </div>
                     <div class="param-group">
                         <div class="param-header"><label>Navigational Task</label><span class="weight-badge" id="badge-C-navigation">0</span></div>
@@ -1001,6 +1022,11 @@
                             <button class="pill-btn" data-value="2">Very Difficult</button>
                             <button class="pill-btn active active-primary" data-value="1">Difficult</button>
                             <button class="pill-btn" data-value="0">Easy</button>
+                        </div>
+                        <div class="param-help-text">
+                            <strong>Very Difficult:</strong> High-stress environment. Extremely complex geometry, non-existent visual guidance, and multiple simultaneous hazards.<br>
+                            <strong>Difficult:</strong> Complex layout requiring active processing. High junction density, poor natural guidance, and high traffic/pedestrian volumes.<br>
+                            <strong>Easy:</strong> Predictable layout, clear signage, simple geometry, and minimal conflict points. Low cognitive load.
                         </div>
                     </div>
                 </div>
@@ -1010,7 +1036,7 @@
                     <div class="param-group">
                         <div class="param-header"><label>Travel Speed</label><span class="weight-badge" id="badge-P-speed">0</span></div>
                         <div class="pill-select-group custom-select-group" data-param="speed" data-type="P">
-                            <button class="pill-btn active active-primary" data-value="1">Low</button>
+                            <button class="pill-btn active active-primary" data-value="1">Low v <= 40km/h</button>
                             <button class="pill-btn" data-value="0">Walking/Very Low</button>
                         </div>
                     </div>
@@ -1021,12 +1047,20 @@
                             <button class="pill-btn" data-value="0">Normal</button>
                             <button class="pill-btn" data-value="-1">Quiet</button>
                         </div>
+                        <div class="param-help-text">
+                            <strong>Busy:</strong> High-density, heavy user volumes (town centers, shopping districts, transit hubs). Continuous flow where facial recognition is critical.<br>
+                            <strong>Normal:</strong> Moderate, steady traffic (residential streets, village pathways). Normal patterns with enough space to move freely.<br>
+                            <strong>Quiet:</strong> Very low volumes (local access, cul-de-sacs, rural paths). Infrequent night-time usage.
+                        </div>
                     </div>
                     <div class="param-group">
                         <div class="param-header"><label>Traffic Composition</label><span class="weight-badge" id="badge-P-composition">0</span></div>
                         <div class="pill-select-group custom-select-group" data-param="composition" data-type="P">
-                            <button class="pill-btn active active-primary" data-value="1">Mixed</button>
-                            <button class="pill-btn" data-value="0">Pedestrians Only</button>
+                            <button class="pill-btn" data-value="2">Peds, Cyc & Mot</button>
+                            <button class="pill-btn" data-value="1">Peds & Mot</button>
+                            <button class="pill-btn" data-value="1">Peds & Cyc</button>
+                            <button class="pill-btn active active-primary" data-value="0">Peds Only</button>
+                            <button class="pill-btn" data-value="0">Cyc Only</button>
                         </div>
                     </div>
                     <div class="param-group">
@@ -1042,6 +1076,10 @@
                             <button class="pill-btn active active-primary" data-value="1">High</button>
                             <button class="pill-btn" data-value="0">Moderate</button>
                             <button class="pill-btn" data-value="-1">Low</button>
+                        </div>
+                        <div class="param-help-text">
+                            <strong>High:</strong> shopping windows, advertisement expressions, sport fields, station storage areas.<br>
+                            <strong>Moderate:</strong> normal situation.
                         </div>
                     </div>
                     <div class="param-group">
@@ -1151,12 +1189,12 @@
 <script>
     // System Constants
     const standards = {
-        'M1': { Lavg: '2.00', Uo: '0.40', Ul: '0.70', TI: '10%', SR: '0.50' },
-        'M2': { Lavg: '1.50', Uo: '0.40', Ul: '0.70', TI: '10%', SR: '0.50' },
-        'M3': { Lavg: '1.00', Uo: '0.40', Ul: '0.60', TI: '15%', SR: '0.50' },
-        'M4': { Lavg: '0.75', Uo: '0.40', Ul: '0.60', TI: '15%', SR: '0.50' },
-        'M5': { Lavg: '0.50', Uo: '0.35', Ul: '0.40', TI: '15%', SR: '0.50' },
-        'M6': { Lavg: '0.30', Uo: '0.35', Ul: '0.40', TI: '15%', SR: 'Not Req' },
+        'M1': { Lavg: '2.00', Uo: '0.40', Ul: '0.70', TI: '10%', SR: '0.35' },
+        'M2': { Lavg: '1.50', Uo: '0.40', Ul: '0.70', TI: '10%', SR: '0.35' },
+        'M3': { Lavg: '1.00', Uo: '0.40', Ul: '0.60', TI: '15%', SR: '0.30' },
+        'M4': { Lavg: '0.75', Uo: '0.40', Ul: '0.60', TI: '15%', SR: '0.30' },
+        'M5': { Lavg: '0.50', Uo: '0.35', Ul: '0.40', TI: '15%', SR: '0.30' },
+        'M6': { Lavg: '0.30', Uo: '0.35', Ul: '0.40', TI: '20%', SR: '0.30' },
         
         'C0': { Eavg: '50.0', Uo: '0.40' },
         'C1': { Eavg: '30.0', Uo: '0.40' },
@@ -1278,6 +1316,23 @@
                   <text x="230" y="80" fill="#ef4444" font-size="9" font-family="sans-serif" text-anchor="middle">Emin point</text>
                   <text x="150" y="40" fill="#f8fafc" font-size="12" text-anchor="middle" font-family="sans-serif">Minimum Illuminance Point Verification</text>
                   <text x="150" y="108" fill="#94a3b8" font-size="10" text-anchor="middle" font-family="sans-serif">Target: Ensure the darkest spot does not drop below Emin</text>`
+        },
+        'Evmin': {
+            name: 'Minimum Vertical Illuminance',
+            desc: 'The minimum amount of illuminance falling on a vertical plane at a specific height (typically 1.5m), used to ensure people\'s faces and vertical objects are visible.',
+            context: 'Crucial for crime prevention and personal security as it allows pedestrians to recognize faces from a distance.',
+            svg: `<rect width="300" height="120" rx="6" fill="#121b2e" stroke="rgba(255,255,255,0.05)"/>
+                  <line x1="150" y1="20" x2="150" y2="100" stroke="#3b82f6" stroke-width="2"/>
+                  <path d="M 130 40 L 170 40 L 170 80 L 130 80 Z" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6"/>
+                  <text x="150" y="112" fill="#94a3b8" font-size="10" text-anchor="middle" font-family="sans-serif">Vertical Plane Illuminance (lx)</text>`
+        },
+        'Escmin': {
+            name: 'Minimum Semi-cylindrical Illuminance',
+            desc: 'The minimum illuminance falling on a semi-cylindrical surface, providing a better measure of the visibility of 3D objects like human faces than vertical illuminance alone.',
+            context: 'Used in high-security areas to ensure robust facial recognition and threat detection from multiple angles.',
+            svg: `<rect width="300" height="120" rx="6" fill="#121b2e" stroke="rgba(255,255,255,0.05)"/>
+                  <path d="M 130 30 A 20 50 0 0 1 170 30 L 170 90 A 20 50 0 0 1 130 90 Z" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981"/>
+                  <text x="150" y="112" fill="#94a3b8" font-size="10" text-anchor="middle" font-family="sans-serif">Semi-cylindrical Illuminance (lx)</text>`
         }
     };
 
@@ -1443,9 +1498,29 @@
     // 3. Render Metric Specification Cards
     function renderRequirements(calculatedClass) {
         requirementsContainer.innerHTML = '';
-        const specs = standards[calculatedClass];
+        let specs = {...standards[calculatedClass]};
 
         if (!specs) return;
+
+        // Extra requirements for Facial Recognition in P Class
+        if (currentAreaType === 'P') {
+            const facialGroup = document.querySelector('.custom-select-group[data-type="P"][data-param="facial"]');
+            const facialActive = facialGroup && facialGroup.querySelector('.pill-btn.active').getAttribute('data-value') === '1';
+            
+            if (facialActive) {
+                const facialSpecs = {
+                    'P1': { Evmin: '5.0', Escmin: '5.0' },
+                    'P2': { Evmin: '3.0', Escmin: '2.0' },
+                    'P3': { Evmin: '2.5', Escmin: '1.5' },
+                    'P4': { Evmin: '1.5', Escmin: '1.0' },
+                    'P5': { Evmin: '1.0', Escmin: '0.6' },
+                    'P6': { Evmin: '0.6', Escmin: '0.2' }
+                };
+                if (facialSpecs[calculatedClass]) {
+                    Object.assign(specs, facialSpecs[calculatedClass]);
+                }
+            }
+        }
 
         Object.entries(specs).forEach(([key, value]) => {
             const card = document.createElement('div');
@@ -1461,6 +1536,8 @@
             else if (key === 'SR') { label = 'Surround Ratio'; unit = ''; }
             else if (key === 'Eavg') { label = 'Eavg'; unit = 'lx'; }
             else if (key === 'Emin') { label = 'Emin'; unit = 'lx'; }
+            else if (key === 'Evmin') { label = 'Ev,min'; unit = 'lx'; }
+            else if (key === 'Escmin') { label = 'Esc,min'; unit = 'lx'; }
 
             // Clean standard comparison sign for display
             let displayVal = value;
