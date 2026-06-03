@@ -1,0 +1,228 @@
+/**
+ * Cable Calculation Logic
+ * Standards targeted: IEC 60364-5-52 and BS 7671 (for Zs)
+ */
+
+const RESISTIVITY_COPPER = 0.0175; // Ohm * mm^2 / m at 20°C
+const RESISTIVITY_HOT = 0.0218;    // Ohm * mm^2 / m at max temp (for Isc)
+const VOLTAGE = 230; // AC Single Phase
+const VOLTAGE_DROP_LIMIT = 0.03; // 3%
+
+// Ampacity Table (IEC 60364-5-52)
+const AMPACITY_TABLE = {
+    "PVC_70": {
+        "AIR": [
+            { s: 1.5, i: 18.5, r1r2: 24.2 },
+            { s: 2.5, i: 25, r1r2: 14.82 },
+            { s: 4, i: 34, r1r2: 9.22 },
+            { s: 6, i: 43, r1r2: 6.16 },
+            { s: 10, i: 60, r1r2: 3.69 },
+            { s: 16, i: 80, r1r2: 2.31 }
+        ],
+        "PIPE": [
+            { s: 1.5, i: 14.5, r1r2: 24.2 },
+            { s: 2.5, i: 20, r1r2: 14.82 },
+            { s: 4, i: 26, r1r2: 9.22 },
+            { s: 6, i: 34, r1r2: 6.16 },
+            { s: 10, i: 46, r1r2: 3.69 },
+            { s: 16, i: 61, r1r2: 2.31 }
+        ]
+    },
+    "XLPE_90": {
+        "AIR": [
+            { s: 1.5, i: 24, r1r2: 24.2 },
+            { s: 2.5, i: 33, r1r2: 14.82 },
+            { s: 4, i: 45, r1r2: 9.22 },
+            { s: 6, i: 58, r1r2: 6.16 },
+            { s: 10, i: 80, r1r2: 3.69 },
+            { s: 16, i: 107, r1r2: 2.31 }
+        ],
+        "PIPE": [
+            { s: 1.5, i: 18.5, r1r2: 24.2 },
+            { s: 2.5, i: 26, r1r2: 14.82 },
+            { s: 4, i: 34, r1r2: 9.22 },
+            { s: 6, i: 44, r1r2: 6.16 },
+            { s: 10, i: 60, r1r2: 3.69 },
+            { s: 16, i: 82, r1r2: 2.31 }
+        ]
+    }
+};
+
+const MCB_RATINGS = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63];
+const FUSE_RATINGS = [2, 4, 6, 10, 16, 20, 25, 32, 35, 40, 50, 63];
+
+// BS 7671 Max Zs Table 41.3 (80% values for Type B MCB)
+const MAX_ZS_BS7671_TYPEB = {
+    6: 6.13,
+    10: 3.68,
+    13: 2.83,
+    16: 2.3,
+    20: 1.84,
+    25: 1.47,
+    32: 1.15,
+    40: 0.92,
+    50: 0.73,
+    63: 0.58
+};
+
+const EARTHING_SYSTEM_ZE = {
+    "TN-C-S": 0.35,
+    "TN-S": 0.8,
+    "TT": 21
+};
+
+const inputs = {
+    length: document.getElementById('length'),
+    current: document.getElementById('current'),
+    insulation: document.getElementById('insulation'),
+    installation: document.getElementById('installation'),
+    ze: document.getElementById('ze'),
+    earthing: document.getElementById('earthing')
+};
+
+const outputs = {
+    section: document.getElementById('section-result'),
+    maxLength: document.getElementById('max-length-result'),
+    drop: document.getElementById('drop-result'),
+    mcb: document.getElementById('mcb-result'),
+    fuse: document.getElementById('fuse-result'),
+    ampacity: document.getElementById('ampacity-result'),
+    isc: document.getElementById('isc-result'),
+    zs: document.getElementById('zs-result'),
+    zsStatus: document.getElementById('zs-status'),
+    zsLimit: document.getElementById('zs-limit')
+};
+
+function calculate() {
+    const L = parseFloat(inputs.length.value) || 0;
+    const I = parseFloat(inputs.current.value) || 0;
+    const Ze = parseFloat(inputs.ze.value) || 0;
+    const ins = inputs.insulation.value;
+    const inst = inputs.installation.value;
+
+    if (L <= 0 || I <= 0) {
+        updateUI(0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return;
+    }
+
+    // 1. Find section based on Ampacity
+    const availableSections = AMPACITY_TABLE[ins][inst];
+    let recommendedS = availableSections[availableSections.length - 1].s;
+    let actualAmpacity = availableSections[availableSections.length - 1].i;
+    let r1r2Value = availableSections[availableSections.length - 1].r1r2;
+
+    for (const entry of availableSections) {
+        if (entry.i >= I) {
+            recommendedS = entry.s;
+            actualAmpacity = entry.i;
+            r1r2Value = entry.r1r2;
+            break;
+        }
+    }
+
+    // 2. Check Voltage Drop
+    let deltaU = (2 * L * I * RESISTIVITY_COPPER) / recommendedS;
+    let dropPercent = deltaU / VOLTAGE;
+
+    while (dropPercent > VOLTAGE_DROP_LIMIT && recommendedS < 16) {
+        const currentIndex = availableSections.findIndex(e => e.s === recommendedS);
+        if (currentIndex < availableSections.length - 1) {
+            recommendedS = availableSections[currentIndex + 1].s;
+            actualAmpacity = availableSections[currentIndex + 1].i;
+            r1r2Value = availableSections[currentIndex + 1].r1r2;
+            deltaU = (2 * L * I * RESISTIVITY_COPPER) / recommendedS;
+            dropPercent = deltaU / VOLTAGE;
+        } else {
+            break;
+        }
+    }
+
+    // 3. Selection Protection Device (MCB)
+    // Aim for 1-2 steps above I_load, but MUST be <= actualAmpacity
+    const mcbIndex = MCB_RATINGS.findIndex(r => r >= I);
+    let recommendedMCB = "N/A";
+
+    if (mcbIndex !== -1) {
+        // Try 2 steps above (index + 1)
+        const step2 = MCB_RATINGS[mcbIndex + 1];
+        const step1 = MCB_RATINGS[mcbIndex];
+
+        if (step2 && step2 <= actualAmpacity) {
+            recommendedMCB = step2;
+        } else if (step1 <= actualAmpacity) {
+            recommendedMCB = step1;
+        }
+    }
+
+    const recommendedFuse = FUSE_RATINGS.find(r => r >= I && r <= actualAmpacity) || "N/A";
+
+    // 4. Case Zs calculation
+    // Zs = Ze + (R1+R2)/1000 * L * 1.2
+    const Zs = Ze + ((r1r2Value / 1000) * L * 1.2);
+
+    // 5. BS 7671 Compliance Check
+    let maxZs = "--";
+    let isCompliant = true;
+    if (recommendedMCB !== "N/A") {
+        maxZs = MAX_ZS_BS7671_TYPEB[recommendedMCB];
+        isCompliant = Zs <= maxZs;
+    }
+
+    // 6. Max Safe Length for 3% drop
+    const deltaULimit = VOLTAGE * VOLTAGE_DROP_LIMIT;
+    const maxL = (deltaULimit * recommendedS) / (2 * I * RESISTIVITY_COPPER);
+
+    // 7. Isc estimation
+    const isc = VOLTAGE / ((2 * L * RESISTIVITY_HOT) / recommendedS);
+
+    updateUI(recommendedS, maxL, dropPercent, recommendedMCB, recommendedFuse, actualAmpacity, isc, Zs, maxZs);
+}
+
+function updateUI(section, maxLength, drop, mcb, fuse, ampacity, isc, zs, maxZs) {
+    outputs.section.textContent = section.toFixed(1);
+    outputs.maxLength.textContent = maxLength.toFixed(1);
+    outputs.mcb.textContent = mcb === "N/A" ? "N/A" : `${mcb}A`;
+    outputs.fuse.textContent = fuse === "N/A" ? "N/A" : `${fuse}A`;
+    outputs.ampacity.textContent = ampacity > 0 ? ampacity.toFixed(1) : "--";
+    outputs.isc.textContent = isc > 0 ? Math.round(isc) : "--";
+
+    outputs.zs.textContent = zs > 0 ? zs.toFixed(3) : "--";
+
+    if (mcb !== "N/A" && zs > 0) {
+        const isCompliant = zs <= maxZs;
+        outputs.zsStatus.textContent = isCompliant ? "COMPLIANT (BS 7671)" : "NON-COMPLIANT";
+        outputs.zsStatus.style.background = isCompliant ? "rgba(0, 255, 136, 0.2)" : "rgba(255, 0, 122, 0.2)";
+        outputs.zsStatus.style.color = isCompliant ? "var(--success)" : "var(--accent)";
+        outputs.zsLimit.textContent = `Type B Limit: ${maxZs} Ω`;
+    } else {
+        outputs.zsStatus.textContent = "--";
+        outputs.zsStatus.style.background = "transparent";
+        outputs.zsLimit.textContent = "";
+    }
+
+    const dropDisplay = (drop * 100).toFixed(2);
+    outputs.drop.textContent = `${dropDisplay}%`;
+
+    if (drop > VOLTAGE_DROP_LIMIT) {
+        outputs.drop.style.color = 'var(--accent)';
+    } else {
+        outputs.drop.style.color = 'var(--success)';
+    }
+}
+
+// Attach listeners
+Object.values(inputs).forEach(input => {
+    input.addEventListener('input', calculate);
+});
+
+// Earthing System Change Handler
+inputs.earthing.addEventListener('change', () => {
+    const val = inputs.earthing.value;
+    if (val !== "CUSTOM") {
+        inputs.ze.value = EARTHING_SYSTEM_ZE[val];
+    }
+    calculate();
+});
+
+// Initial run
+calculate();

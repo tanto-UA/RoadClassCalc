@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!-- saved from url=(0030)https://cablecalc.netlify.app/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CableMaster | Premium Cable Calculator</title>
+    <meta name="description" content="Calculate professional copper cable cross-sections for lighting networks with real-time feedback and premium interface.">
+    <link rel="stylesheet" href="./CableMaster _ Premium Cable Calculator_files/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <section class="card animate-in">
+            <h1>Cable Calculator</h1>
+
+            <div class="input-group">
+                <label for="length">Cable Length (m)</label>
+                <input type="number" id="length" placeholder="Enter length..." min="0" value="50">
+            </div>
+
+            <div class="input-group">
+                <label for="current">Current Load (A)</label>
+                <input type="number" id="current" placeholder="Enter current..." min="0" value="10">
+            </div>
+
+            <div class="input-group">
+                <label for="insulation">Insulation Type &amp; Temp</label>
+                <select id="insulation">
+                    <option value="PVC_70">PVC (70°C)</option>
+                    <option value="XLPE_90">XLPE (90°C)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="installation">Installation Method</label>
+                <select id="installation">
+                    <option value="AIR">In Air / Perforated Tray</option>
+                    <option value="PIPE">In Pipe / Conduit</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="earthing">Earthing System</label>
+                <select id="earthing">
+                    <option value="TN-C-S">TN-C-S (0.35 Ω)</option>
+                    <option value="TN-S">TN-S (0.8 Ω)</option>
+                    <option value="TT">TT (21 Ω)</option>
+                    <option value="CUSTOM">Custom Value</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="ze">External Impedance (Ze, Ω)</label>
+                <input type="number" id="ze" placeholder="Enter Ze..." min="0" step="0.01" value="0.35">
+            </div>
+        </section>
+
+        <section class="card results-panel animate-in delay-1">
+            <div class="result-item">
+                <div class="result-label">Recommended Cross-Section</div>
+                <div class="result-value" id="section-result">4.0</div>
+                <span class="result-unit">mm²</span>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Maximum Safe Length</div>
+                <div class="max-length-badge">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span id="max-length-result">78.9</span> m
+                </div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Projected Voltage Drop</div>
+                <div id="drop-result" style="color: var(--success); font-weight: 600;">1.90%</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                <div class="card" style="padding: 15px; background: rgba(255,255,255,0.03);">
+                    <div class="result-label" style="font-size: 0.7rem;">Circuit Breaker (MCB)</div>
+                    <div id="mcb-result" style="font-weight: 700; color: var(--primary);">13A</div>
+                </div>
+                <div class="card" style="padding: 15px; background: rgba(255,255,255,0.03);">
+                    <div class="result-label" style="font-size: 0.7rem;">Fuse (gG)</div>
+                    <div id="fuse-result" style="font-weight: 700; color: var(--secondary);">10A</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                <div class="result-item" style="margin-bottom: 0;">
+                    <div class="result-label">Max Current (Iz)</div>
+                    <div style="font-size: 1.5rem; font-weight: 600;"><span id="ampacity-result">34.0</span> <small style="font-size: 0.8rem; color: var(--text-dim);">A</small></div>
+                </div>
+                <div class="result-item" style="margin-bottom: 0;">
+                    <div class="result-label">Short Circuit (Isc)</div>
+                    <div style="font-size: 1.5rem; font-weight: 600;"><span id="isc-result">422</span> <small style="font-size: 0.8rem; color: var(--text-dim);">A</small></div>
+                </div>
+            </div>
+
+            <div class="result-item" style="margin-top: 25px; border-top: 1px solid var(--glass-border); padding-top: 20px;">
+                <div class="result-label">Fault Loop Impedance (Zs)</div>
+                <div style="display: flex; align-items: baseline; gap: 10px;">
+                    <span id="zs-result" style="font-size: 2rem; font-weight: 700; color: var(--primary);">0.903</span>
+                    <span class="result-unit">Ω</span>
+                    <span id="zs-status" style="font-size: 0.9rem; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-left: auto; background: rgba(0, 255, 136, 0.2); color: var(--success);">COMPLIANT (BS 7671)</span>
+                </div>
+                <div id="zs-limit" style="font-size: 0.8rem; color: var(--text-dim); margin-top: 5px;">Type B Limit: 2.83 Ω</div>
+            </div>
+
+            <div class="footer">
+                Compliance: 3% max voltage drop (Lighting)
+            </div>
+        </section>
+    </div>
+    <script src="./CableMaster _ Premium Cable Calculator_files/script.js.download"></script>
+
+
+<div><div style="display: none; position: fixed; top: 30px; width: auto; max-width: 100%; text-align: center; left: 50%; transform: translateX(-50%); z-index: 99999999;"><div style="display: inline-block; font-size: 14px; font-weight: bold; border: 1px solid rgb(240, 195, 109); background-color: rgb(249, 237, 190); padding: 0px 10px; border-radius: 2px; box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px;"></div></div></div></body></html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disability Glare (TI) Simulator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Dark Theme Variables (Default) */
+            --bg-page: transparent;
+            --bg-card: rgba(15, 23, 42, 0.65);
+            --bg-card-hover: rgba(23, 37, 66, 0.8);
+            --bg-input: #121b2e;
+            --bg-input-active: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-on-primary: #ffffff;
+            --primary: #3b82f6;
+            --primary-rgb: 59, 130, 246;
+            --primary-hover: #2563eb;
+            --accent: #10b981;
+            --accent-rgb: 16, 185, 129;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(59, 130, 246, 0.4);
+            --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.2);
+            --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.15);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --screen-bg: #050510;
+        }
+
+        [data-theme="light"] {
+            /* Light Theme Variables */
+            --bg-page: transparent;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-card-hover: rgba(255, 255, 255, 0.95);
+            --bg-input: #f1f5f9;
+            --bg-input-active: #2563eb;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-on-primary: #ffffff;
+            --primary: #2563eb;
+            --primary-rgb: 37, 99, 235;
+            --primary-hover: #1d4ed8;
+            --accent: #059669;
+            --accent-rgb: 5, 150, 105;
+            --border: rgba(0, 0, 0, 0.08);
+            --border-hover: rgba(37, 99, 235, 0.3);
+            --shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.03);
+            --shadow-glow: 0 0 25px rgba(37, 99, 235, 0.08);
+            --screen-bg: #010103;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            line-height: 1.5;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        h2 { 
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px; 
+            margin: 0 0 10px 0; 
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            text-align: center;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1000px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .controls {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: var(--radius-lg);
+            width: 320px;
+            box-shadow: var(--shadow);
+            z-index: 10;
+            transition: var(--transition);
+        }
+
+        .controls:hover {
+            border-color: var(--border-hover);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .visualization {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* Main Screen Container */
+        .screen {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            background-color: var(--screen-bg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .screen:hover {
+            border-color: var(--border-hover);
+        }
+        
+        /* 2D Faked Perspective Road (Trapezoid using borders) */
+        .road-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%; /* Bottom half of screen */
+            z-index: 1;
+        }
+
+        .road {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            /* Trapezoid shape */
+            border-bottom: 200px solid #222; /* Road color */
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            height: 0;
+            width: 300px; /* Width at the bottom */
+            transition: border-bottom-color 0.2s;
+        }
+
+        .lane-line {
+            position: absolute;
+            bottom: -200px; /* Aligns with bottom of trapezoid */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-bottom: 200px solid rgba(255, 255, 255, 0.4);
+            border-left: 2px solid transparent;
+            border-right: 2px solid transparent;
+        }
+
+        /* Street Light Infrastructure */
+        .pole {
+            position: absolute;
+            right: 25%;
+            width: 10px;
+            background: linear-gradient(to right, #2a2a2a, #555, #1a1a1a);
+            border-radius: 6px 6px 0 0;
+            z-index: 2;
+            transition: top 0.2s, height 0.2s;
+        }
+
+        .arm {
+            position: absolute;
+            right: 25%;
+            width: 120px;
+            height: 6px;
+            background: linear-gradient(to bottom, #444, #111);
+            border-radius: 8px 0 0 8px;
+            transform-origin: right center;
+            transform: rotate(-8deg);
+            z-index: 2;
+            transition: top 0.2s;
+        }
+
+        .luminaire {
+            position: absolute;
+            right: calc(25% + 100px);
+            width: 35px;
+            height: 12px;
+            background-color: #fff;
+            border-radius: 10px 10px 4px 4px;
+            box-shadow: 0 0 30px 15px rgba(255, 240, 200, 0.6);
+            z-index: 4;
+            transition: top 0.2s, box-shadow 0.2s;
+            transform: translateY(-4px);
+        }
+
+        /* Car SVG Target */
+        .car-container {
+            position: absolute;
+            bottom: 10%; /* Sits on the road */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 80px;
+            z-index: 3;
+            /* Drop shadow for depth */
+            filter: drop-shadow(0 15px 10px rgba(0,0,0,0.9));
+        }
+
+        /* Disability Glare Veil */
+        .veil {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 60% 30%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0) 80%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+            transition: opacity 0.1s, background 0.2s;
+        }
+
+        /* Dashboard Data */
+        .dashboard {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .dashboard:hover {
+            border-color: var(--border-hover);
+        }
+
+        .ti-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 10px 0;
+            color: var(--primary);
+            transition: color 0.3s;
+            text-shadow: var(--shadow-glow);
+        }
+
+        .warning {
+            color: #fff;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            background-color: #ef4444;
+            display: none;
+            margin-top: 15px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Disability Glare (Threshold Increment) Simulator</h2>
+    <p>Observe how the luminous veil from the streetlight washes out the contrast of the car ahead.</p>
+
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label>
+                    <span>Road Luminance (L_avg)</span>
+                    <span id="valRoad">1.0 cd/m²</span>
+                </label>
+                <input type="range" id="sliderRoad" min="0.1" max="3.0" step="0.1" value="1.0">
+            </div>
+
+            <div class="control-group">
+                <label>
+                    <span>Luminaire Intensity</span>
+                    <span id="valInt">Medium</span>
+                </label>
+                <input type="range" id="sliderInt" min="100" max="3000" step="100" value="1000">
+            </div>
+
+            <div class="control-group">
+                <label>
+                    <span>Glare Angle (θ)</span>
+                    <span id="valAng">15°</span>
+                </label>
+                <input type="range" id="sliderAng" min="5" max="30" step="1" value="15">
+            </div>
+        </div>
+
+        <div class="visualization">
+            <div class="screen">
+                <div class="road-container">
+                    <div class="road" id="roadElement">
+                        <div class="lane-line"></div>
+                    </div>
+                </div>
+
+                <div class="car-container">
+                    <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                        <rect x="12" y="62" width="16" height="18" rx="4" fill="#020202"/>
+                        <rect x="72" y="62" width="16" height="18" rx="4" fill="#020202"/>
+                        <path d="M 12 65 L 88 65 L 94 40 L 80 18 L 20 18 L 6 40 Z" fill="#181818" stroke="#333" stroke-width="1.5"/>
+                        <path d="M 26 22 L 74 22 L 84 38 L 16 38 Z" fill="#050505" stroke="#222" stroke-width="1"/>
+                        <rect x="38" y="48" width="24" height="10" rx="1" fill="#ddd"/>
+                        <rect x="8" y="42" width="20" height="8" rx="3" fill="#600"/>
+                        <rect x="72" y="42" width="20" height="8" rx="3" fill="#600"/>
+                        <path d="M 10 60 L 90 60" stroke="#0a0a0a" stroke-width="2"/>
+                    </svg>
+                </div>
+
+                <div class="pole" id="poleElement"></div>
+                <div class="arm" id="armElement"></div>
+                <div class="luminaire" id="glareElement"></div>
+                
+                <div class="veil" id="veilElement"></div>
+            </div>
+            
+            <div class="dashboard">
+                <div>Calculated Threshold Increment (TI)</div>
+                <div class="ti-value"><span id="valTI">0</span>%</div>
+                <div class="stats">
+                    <span>Veiling Luminance (Lv): <span id="valLv">0.00</span> cd/m²</span>
+                </div>
+                <div class="warning" id="warningMsg">⚠️ NON-COMPLIANT: SEVERE GLARE HAZARD</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sliderRoad = document.getElementById('sliderRoad');
+        const sliderInt = document.getElementById('sliderInt');
+        const sliderAng = document.getElementById('sliderAng');
+        
+        const valRoad = document.getElementById('valRoad');
+        const valInt = document.getElementById('valInt');
+        const valAng = document.getElementById('valAng');
+        const valTI = document.getElementById('valTI');
+        const valLv = document.getElementById('valLv');
+        
+        const roadElement = document.getElementById('roadElement');
+        const glareElement = document.getElementById('glareElement');
+        const armElement = document.getElementById('armElement');
+        const poleElement = document.getElementById('poleElement');
+        const veilElement = document.getElementById('veilElement');
+        const warningMsg = document.getElementById('warningMsg');
+
+        function updateSimulation() {
+            const L_avg = parseFloat(sliderRoad.value);
+            const intensity = parseFloat(sliderInt.value);
+            const angle = parseFloat(sliderAng.value);
+
+            // Update text labels
+            valRoad.innerText = L_avg.toFixed(1) + ' cd/m²';
+            valAng.innerText = angle + '°';
+            
+            if (intensity < 800) valInt.innerText = 'Low';
+            else if (intensity < 2000) valInt.innerText = 'Medium';
+            else valInt.innerText = 'High';
+
+            // 1. Update Road Brightness
+            const lightness = 10 + (L_avg / 3.0) * 25;
+            roadElement.style.borderBottomColor = `hsl(0, 0%, ${lightness}%)`;
+
+            // 2. Position the street light infrastructure based on the Angle (θ)
+            // CORRECTED: Smaller angle = lower on screen (closer to horizon). 
+            // Maps 5-30 degrees to 45% (low) down to 5% (high up) from the top.
+            const topPosition = 45 - ((angle - 5) / 25) * 40; 
+            
+            glareElement.style.top = topPosition + '%';
+            armElement.style.top = topPosition + '%';
+            poleElement.style.top = topPosition + '%';
+            poleElement.style.height = (100 - topPosition) + '%';
+
+            // 3. Adjust Luminaire Glow (Halo)
+            const glowSpread = (intensity / 3000) * 40;
+            const glowOpacity = 0.4 + (intensity / 3000) * 0.6;
+            glareElement.style.boxShadow = `0 0 ${glowSpread + 15}px ${glowSpread}px rgba(255, 230, 150, ${glowOpacity})`;
+
+            // 4. TI Calculations
+            const E_proxy = intensity / 100; 
+            const Lv = (10 * E_proxy) / Math.pow(angle, 2);
+            const TI = 65 * (Lv / Math.pow(L_avg, 0.8));
+
+            // Update Dashboard metrics
+            valLv.innerText = Lv.toFixed(2);
+            valTI.innerText = TI.toFixed(1);
+
+            // 5. Apply Luminous Veil Effect
+            veilElement.style.background = `radial-gradient(circle at calc(100% - 25% - 80px) ${topPosition}%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.85) 15%, rgba(255,255,255,0) 85%)`;
+            
+            // Map TI to the visual opacity of the veil (capped at 0.90)
+            const veilOpacity = Math.min(TI / 80, 0.90);
+            veilElement.style.opacity = veilOpacity;
+
+            // 6. Handle Warning States
+            if (TI > 15) {
+                warningMsg.style.display = 'block';
+                document.querySelector('.ti-value').style.color = '#e74c3c';
+            } else {
+                warningMsg.style.display = 'none';
+                document.querySelector('.ti-value').style.color = '#f39c12';
+            }
+        }
+
+        // Attach event listeners to sliders
+        sliderRoad.addEventListener('input', updateSimulation);
+        sliderInt.addEventListener('input', updateSimulation);
+        sliderAng.addEventListener('input', updateSimulation);
+
+        // Run once on load to set initial state
+        updateSimulation();
+    </script>
+</body>
+</html>
