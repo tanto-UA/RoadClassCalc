@@ -1,4 +1,3 @@
-# RoadClassCalc
 # BS EN 13201 Road Lighting Class Calculator
 
 A modern, highly interactive, and visually stunning single-page web application designed to calculate the recommended road lighting class based on the BS EN 13201 standard. 

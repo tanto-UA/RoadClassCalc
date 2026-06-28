@@ -358,6 +358,50 @@
             color: var(--primary);
         }
 
+        /* Premium Input Styles */
+        .premium-input-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-input);
+            padding: 4px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .premium-input-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .premium-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 8px 0;
+            width: 100%;
+        }
+
+        .premium-input-status {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
         /* Visualizer Column */
         .visual-col {
             display: flex;
@@ -1061,48 +1105,56 @@
                     <div class="param-group">
                         <div class="param-header"><label>Speed</label><span class="weight-badge" id="badge-M-speed">0</span></div>
                         <div class="pill-select-group custom-select-group" data-param="speed" data-type="M">
-                            <button class="pill-btn" data-value="2">> 100 km/h</button>
-                            <button class="pill-btn" data-value="1">70 - 100 km/h</button>
-                            <button class="pill-btn active active-primary" data-value="-1">40 - 70 km/h</button>
-                            <button class="pill-btn" data-value="-2">≤ 40 km/h</button>
+                            <button class="pill-btn" data-value="2">> 100 km/h (≥ 62 mph)</button>
+                            <button class="pill-btn" data-value="1">70 - 100 km/h (44 - 61 mph)</button>
+                            <button class="pill-btn active active-primary" data-value="-1">40 - 70 km/h (25 - 43 mph)</button>
+                            <button class="pill-btn" data-value="-2">≤ 40 km/h (≤ 24 mph)</button>
                         </div>
                     </div>
                     <div class="param-group">
-                        <div class="param-header"><label>Traffic Volume</label><span class="weight-badge" id="badge-M-volume">0</span></div>
-                        <div class="pill-select-group custom-select-group" data-param="volume" data-type="M">
-                            <button class="pill-btn active active-primary" data-value="1">High</button>
-                            <button class="pill-btn" data-value="0">Moderate</button>
-                            <button class="pill-btn" data-value="-1">Low</button>
+                        <div class="param-header">
+                            <label>Traffic Flow (vehicles/day)</label>
+                            <span class="weight-badge" id="badge-M-volume">0</span>
+                        </div>
+                        <div class="premium-input-container" data-param="volume" data-type="M">
+                            <input type="number" id="input-M-flow" class="premium-input" value="45000" min="0" placeholder="Enter number of vehicles/day...">
+                            <span id="status-M-volume" class="premium-input-status">Very High</span>
                         </div>
                         <div class="param-help-text">
-                            For main traffic routes and highways, the traffic volume classification is split based on the layout of the road (multilane vs. two-lane):
+                            The traffic volume weighting value is determined from the traffic flow (number of cars/day) using the standard formula:
                         </div>
                         <table class="param-help-table">
                             <thead>
                                 <tr>
-                                    <th>Volume</th>
-                                    <th>Motorways &amp; Multilane</th>
-                                    <th>Two-Lane Routes</th>
-                                    <th>V<sub>W</sub></th>
+                                    <th>Classification</th>
+                                    <th>Traffic Flow (vehicles/day)</th>
+                                    <th>Weighting Value (V<sub>W</sub>)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><strong>High</strong></td>
-                                    <td>&gt; 65% of max capacity</td>
-                                    <td>&gt; 45% of max capacity</td>
+                                    <td><strong>Very High</strong></td>
+                                    <td>&ge; 55 001</td>
                                     <td>+1</td>
                                 </tr>
                                 <tr>
+                                    <td><strong>High</strong></td>
+                                    <td>40 001 to 55 500</td>
+                                    <td>+0.5</td>
+                                </tr>
+                                <tr>
                                     <td><strong>Moderate</strong></td>
-                                    <td>35% to 65% of max capacity</td>
-                                    <td>15% to 45% of max capacity</td>
+                                    <td>23 501 to 40 000</td>
                                     <td>0</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Low</strong></td>
-                                    <td>&lt; 35% of max capacity</td>
-                                    <td>&lt; 15% of max capacity</td>
+                                    <td>7 001 to 23 500</td>
+                                    <td>-0.5</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Very Low</strong></td>
+                                    <td>&le; 7 000</td>
                                     <td>-1</td>
                                 </tr>
                             </tbody>
@@ -1152,8 +1204,12 @@
                             <button class="pill-btn" data-value="-1">Low</button>
                         </div>
                         <div class="param-help-text">
-                            <strong>High:</strong> shopping windows, advertisement expressions, sport fields, station storage areas.<br>
-                            <strong>Moderate:</strong> normal situation.
+                            Ambient luminance describes the background brightness of the surrounding environment, affecting visual adaptation:
+                            <ul style="margin-left: 16px; margin-top: 4px; display: flex; flex-direction: column; gap: 2px;">
+                                <li><strong>High (V<sub>W</sub> = +1)</strong>: Intense background light (e.g. bright shop fronts, sports fields, large billboards).</li>
+                                <li><strong>Moderate (V<sub>W</sub> = 0)</strong>: Standard baseline environments (e.g. typical residential streets, suburban areas).</li>
+                                <li><strong>Low (V<sub>W</sub> = -1)</strong>: Dark, rural, or isolated areas with minimal background lighting.</li>
+                            </ul>
                         </div>
                     </div>
                     <div class="param-group">
@@ -1164,9 +1220,12 @@
                             <button class="pill-btn" data-value="0">Easy</button>
                         </div>
                         <div class="param-help-text">
-                            <strong>Very Difficult:</strong> High-stress environment. Extremely complex geometry, non-existent visual guidance, and multiple simultaneous hazards.<br>
-                            <strong>Difficult:</strong> Complex layout requiring active processing. High junction density, poor natural guidance, and high traffic/pedestrian volumes.<br>
-                            <strong>Easy:</strong> Predictable layout, clear signage, simple geometry, and minimal conflict points. Low cognitive load.
+                            Difficulty of the navigational task measures the mental effort and attention required to navigate safely:
+                            <ul style="margin-left: 16px; margin-top: 4px; display: flex; flex-direction: column; gap: 2px;">
+                                <li><strong>Very Difficult (V<sub>W</sub> = +2)</strong>: Highly complex road geometry, lack of visual guidance, multiple conflicts.</li>
+                                <li><strong>Difficult (V<sub>W</sub> = +1)</strong>: Active attention needed (e.g. standard roundabouts, urban streets, high signage).</li>
+                                <li><strong>Easy (V<sub>W</sub> = 0)</strong>: Simple, predictable layout (e.g. straight roads, clear lane markings).</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -1176,19 +1235,60 @@
                     <div class="param-group">
                         <div class="param-header"><label>Speed</label><span class="weight-badge" id="badge-C-speed">0</span></div>
                         <div class="pill-select-group custom-select-group" data-param="speed" data-type="C">
-                            <button class="pill-btn" data-value="3">Very High >100 km/h</button>
-                            <button class="pill-btn" data-value="2">High 70-100</button>
-                            <button class="pill-btn active active-primary" data-value="0">Mod. 40-70</button>
-                            <button class="pill-btn" data-value="-1">Low < 40</button>
+                            <button class="pill-btn" data-value="3">Very High > 100 km/h (≥ 62 mph)</button>
+                            <button class="pill-btn" data-value="2">High 70 - 100 km/h (44 - 61 mph)</button>
+                            <button class="pill-btn active active-primary" data-value="0">Mod. 40 - 70 km/h (25 - 43 mph)</button>
+                            <button class="pill-btn" data-value="-1">Low < 40 km/h (≤ 24 mph)</button>
                         </div>
                     </div>
                     <div class="param-group">
-                        <div class="param-header"><label>Traffic Volume</label><span class="weight-badge" id="badge-C-volume">0</span></div>
-                        <div class="pill-select-group custom-select-group" data-param="volume" data-type="C">
-                            <button class="pill-btn active active-primary" data-value="1">High</button>
-                            <button class="pill-btn" data-value="0">Moderate</button>
-                            <button class="pill-btn" data-value="-1">Low</button>
+                        <div class="param-header">
+                            <label>Traffic Flow (vehicles/day)</label>
+                            <span class="weight-badge" id="badge-C-volume">0</span>
                         </div>
+                        <div class="premium-input-container" data-param="volume" data-type="C">
+                            <input type="number" id="input-C-flow" class="premium-input" value="45000" min="0" placeholder="Enter number of vehicles/day...">
+                            <span id="status-C-volume" class="premium-input-status">Very High</span>
+                        </div>
+                        <div class="param-help-text">
+                            The traffic volume weighting value for conflict areas is determined from the total traffic flow entering the intersection:
+                        </div>
+                        <table class="param-help-table">
+                            <thead>
+                                <tr>
+                                    <th>Classification</th>
+                                    <th>Traffic Flow (vehicles/day)</th>
+                                    <th>Weighting Value (V<sub>W</sub>)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Very High</strong></td>
+                                    <td>&ge; 55 001</td>
+                                    <td>+1</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>High</strong></td>
+                                    <td>40 001 to 55 500</td>
+                                    <td>+0.5</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Moderate</strong></td>
+                                    <td>23 501 to 40 000</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Low</strong></td>
+                                    <td>7 001 to 23 500</td>
+                                    <td>-0.5</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Very Low</strong></td>
+                                    <td>&le; 7 000</td>
+                                    <td>-1</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div class="param-group">
                         <div class="param-header"><label>Traffic Composition</label><span class="weight-badge" id="badge-C-composition">0</span></div>
@@ -1213,8 +1313,12 @@
                             <button class="pill-btn" data-value="-1">Low</button>
                         </div>
                         <div class="param-help-text">
-                            <strong>High:</strong> shopping windows, advertisement expressions, sport fields, station storage areas.<br>
-                            <strong>Moderate:</strong> normal situation.
+                            Ambient luminance describes the background brightness of the surrounding environment, affecting visual adaptation:
+                            <ul style="margin-left: 16px; margin-top: 4px; display: flex; flex-direction: column; gap: 2px;">
+                                <li><strong>High (V<sub>W</sub> = +1)</strong>: Intense background light (e.g. bright shop fronts, sports fields, large billboards).</li>
+                                <li><strong>Moderate (V<sub>W</sub> = 0)</strong>: Standard baseline environments (e.g. typical residential streets, suburban areas).</li>
+                                <li><strong>Low (V<sub>W</sub> = -1)</strong>: Dark, rural, or isolated areas with minimal background lighting.</li>
+                            </ul>
                         </div>
                     </div>
                     <div class="param-group">
@@ -1225,9 +1329,12 @@
                             <button class="pill-btn" data-value="0">Easy</button>
                         </div>
                         <div class="param-help-text">
-                            <strong>Very Difficult:</strong> High-stress environment. Extremely complex geometry, non-existent visual guidance, and multiple simultaneous hazards.<br>
-                            <strong>Difficult:</strong> Complex layout requiring active processing. High junction density, poor natural guidance, and high traffic/pedestrian volumes.<br>
-                            <strong>Easy:</strong> Predictable layout, clear signage, simple geometry, and minimal conflict points. Low cognitive load.
+                            Difficulty of the navigational task measures the mental effort and attention required to navigate safely:
+                            <ul style="margin-left: 16px; margin-top: 4px; display: flex; flex-direction: column; gap: 2px;">
+                                <li><strong>Very Difficult (V<sub>W</sub> = +2)</strong>: Highly complex road geometry, lack of visual guidance, multiple conflicts.</li>
+                                <li><strong>Difficult (V<sub>W</sub> = +1)</strong>: Active attention needed (e.g. standard roundabouts, urban streets, high signage).</li>
+                                <li><strong>Easy (V<sub>W</sub> = 0)</strong>: Simple, predictable layout (e.g. straight roads, clear lane markings).</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -1237,7 +1344,7 @@
                     <div class="param-group">
                         <div class="param-header"><label>Travel Speed</label><span class="weight-badge" id="badge-P-speed">0</span></div>
                         <div class="pill-select-group custom-select-group" data-param="speed" data-type="P">
-                            <button class="pill-btn active active-primary" data-value="1">Low v <= 40km/h</button>
+                            <button class="pill-btn active active-primary" data-value="1">Low v ≤ 40 km/h (≤ 25 mph)</button>
                             <button class="pill-btn" data-value="0">Walking/Very Low</button>
                         </div>
                     </div>
@@ -1642,6 +1749,16 @@
         // Setup Window Resizing for Canvas
         window.addEventListener('resize', resizeCanvas);
         
+        // Traffic Flow Input listeners for M and C volume
+        ['M', 'C'].forEach(type => {
+            const flowInput = document.getElementById(`input-${type}-flow`);
+            if (flowInput) {
+                flowInput.addEventListener('input', () => {
+                    calculate();
+                });
+            }
+        });
+
         // Initial Runs
         calculate();
         resizeCanvas();
@@ -1658,7 +1775,7 @@
             const param = group.getAttribute('data-param');
             const activePill = group.querySelector('.pill-btn.active');
             if (activePill) {
-                const val = parseInt(activePill.getAttribute('data-value'));
+                const val = parseFloat(activePill.getAttribute('data-value'));
                 vws += val;
 
                 // Update weight badge style dynamically
@@ -1675,10 +1792,66 @@
             }
         });
 
-        // Formula: Class = 6 - Vws
-        let classNum = 6 - vws;
+        // Special handling for M and C Class Traffic Volume (derived from Traffic Flow input)
+        if (currentAreaType === 'M' || currentAreaType === 'C') {
+            const flowInput = document.getElementById(`input-${currentAreaType}-flow`);
+            const volumeBadge = document.getElementById(`badge-${currentAreaType}-volume`);
+            const volumeStatus = document.getElementById(`status-${currentAreaType}-volume`);
+            
+            if (flowInput) {
+                const flow = parseFloat(flowInput.value) || 0;
+                let val = 0;
+                let statusText = 'Moderate';
+                
+                // Formula:
+                // <= 7000: -1
+                // 7001 to 23500: -0.5
+                // 23501 to 40000: 0
+                // 40001 to 55500: 0.5
+                // >= 55001: 1
+                if (flow <= 7000) {
+                    val = -1;
+                    statusText = 'Very Low';
+                } else if (flow <= 23500) {
+                    val = -0.5;
+                    statusText = 'Low';
+                } else if (flow <= 40000) {
+                    val = 0;
+                    statusText = 'Moderate';
+                } else if (flow <= 55500) {
+                    val = 0.5;
+                    statusText = 'High';
+                } else {
+                    val = 1;
+                    statusText = 'Very High';
+                }
+                
+                vws += val;
+                
+                // Update dynamic readout in input field
+                if (volumeStatus) {
+                    volumeStatus.textContent = `${statusText} (${val > 0 ? '+' : ''}${val})`;
+                    volumeStatus.style.borderColor = val > 0 ? 'rgba(var(--primary-rgb), 0.4)' : 'var(--border)';
+                    volumeStatus.style.color = val > 0 ? 'var(--primary)' : 'var(--text-muted)';
+                }
+                
+                // Update weight badge
+                if (volumeBadge) {
+                    volumeBadge.textContent = val > 0 ? `+${val}` : val;
+                    volumeBadge.className = 'weight-badge';
+                    if (val > 0) {
+                        volumeBadge.classList.add('positive');
+                    } else if (val < 0) {
+                        volumeBadge.classList.add('negative');
+                    }
+                }
+            }
+        }
+
+        // Formula: Class = 6 - Vws (rounded to lower class number/higher lighting requirements if fractional)
+        let classNum = Math.floor(6 - vws);
         let clamped = false;
-        let originalClassNum = classNum;
+        let originalClassNum = 6 - vws;
 
         // Clamp boundaries based on standards
         if (currentAreaType === 'M' || currentAreaType === 'P') {
@@ -1699,6 +1872,8 @@
         let formulaText = `Class = 6 - Vws = 6 - (${vws}) = ${originalClassNum}`;
         if (clamped) {
             formulaText += ` (Clamped to ${finalClass})`;
+        } else if (classNum !== originalClassNum) {
+            formulaText += ` (Rounded to ${finalClass})`;
         }
         formulaDisplay.textContent = formulaText;
 
@@ -2277,14 +2452,32 @@
         if (currentAreaType === 'P') areaTypeFull = 'Pedestrian / Low Speed Pathway';
 
         let paramsMd = '';
-        const activeGroups = document.querySelectorAll(`.custom-select-group[data-type="${currentAreaType}"]`);
-        activeGroups.forEach(group => {
-            const label = group.closest('.param-group').querySelector('label').textContent;
-            const activePill = group.querySelector('.pill-btn.active');
-            const weight = activePill ? activePill.getAttribute('data-value') : '0';
-            const weightText = parseInt(weight) > 0 ? `+${weight}` : weight;
-            paramsMd += `- **${label}**: ${activePill ? activePill.textContent : 'N/A'} (Weighting value: \`${weightText}\`)\n`;
-        });
+        const paramSection = document.getElementById(`section-${currentAreaType}`);
+        if (paramSection) {
+            const paramGroups = paramSection.querySelectorAll('.param-group');
+            paramGroups.forEach(group => {
+                const labelElement = group.querySelector('.param-header label');
+                const label = labelElement ? labelElement.textContent : '';
+                
+                // If it is the Traffic Flow input for M or C Class
+                const flowInput = group.querySelector(`#input-${currentAreaType}-flow`);
+                if (flowInput && (currentAreaType === 'M' || currentAreaType === 'C')) {
+                    const volumeStatus = document.getElementById(`status-${currentAreaType}-volume`);
+                    const volumeBadge = document.getElementById(`badge-${currentAreaType}-volume`);
+                    const flowVal = flowInput.value;
+                    const statusText = volumeStatus ? volumeStatus.textContent : '';
+                    const weightVal = volumeBadge ? volumeBadge.textContent : '0';
+                    paramsMd += `- **${label}**: \`${flowVal}\` vehicles/day (${statusText}, Weighting value: \`${weightVal}\`)\n`;
+                } else {
+                    const activePill = group.querySelector('.pill-btn.active');
+                    if (activePill) {
+                        const weight = activePill.getAttribute('data-value');
+                        const weightText = parseFloat(weight) > 0 ? `+${weight}` : weight;
+                        paramsMd += `- **${label}**: ${activePill.textContent} (Weighting value: \`${weightText}\`)\n`;
+                    }
+                }
+            });
+        }
 
         let reqsMd = '';
         const specs = standards[activeClass];
