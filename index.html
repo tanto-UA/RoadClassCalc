@@ -1011,6 +1011,14 @@
             </svg>
             Cable Calculator
         </button>
+        <button class="portal-tab" data-target="tab-ta501">
+            <svg class="tab-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            TA501
+        </button>
     </div>
     
     <button class="global-theme-toggle" id="globalThemeToggleBtn" title="Toggle Theme">
@@ -1034,19 +1042,7 @@
             <h1>BS EN 13201 Calculator</h1>
             <p>Advanced Road Lighting Class & Photometric Requirements Designer</p>
         </div>
-        <div class="header-actions">
-            <!-- Theme Toggle -->
-            <button class="action-btn" id="themeToggleBtn" title="Toggle Theme">
-                <!-- Moon Icon -->
-                <svg id="themeMoonIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-8.9 8.2-9.8.5-.1 1 .3.9.8-.1.5-.6.8-1.1.9-3.4.6-5.9 3.6-5.9 7.1 0 4 3.3 7.3 7.3 7.3 3.5 0 6.5-2.5 7.1-5.9.1-.5.4-1 .9-1.1.5-.1.9.4.8.9-.9 4.7-5 8.2-9.8 8.2zM9.9 4.2c-3.1 1-5.3 3.9-5.3 7.3 0 4.6 3.7 8.3 8.3 8.3 3.4 0 6.3-2.2 7.3-5.3-1 .4-2.1.6-3.2.6-4.6-.1-8.3-3.8-8.3-8.3 0-1.1.2-2.2.6-3.2z"/>
-                </svg>
-                <!-- Sun Icon -->
-                <svg id="themeSunIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none;">
-                    <path d="M12 7c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3zm0-10c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1s-1 .4-1 1v1c0 .6.4 1 1 1zm0 14c-.6 0-1 .4-1 1v1c0 .6.4 1 1 1s1-.4 1-1v-1c0-.6-.4-1-1-1zm8.5-7.5c0-.6-.4-1-1-1h-1c-.6 0-1 .4-1 1s.4 1 1 1h1c.6 0 1-.4 1-1zm-14 0c0-.6-.4-1-1-1H3.5c-.6 0-1 .4-1 1s.4 1 1 1h1c.6 0 1-.4 1-1zm11.7-5.7c.4-.4.4-1 0-1.4s-1-.4-1.4 0l-.7.7c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3l.7-.7zm-10.6 10.6c.4-.4.4-1 0-1.4s-1-.4-1.4 0l-.7.7c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3l.7-.7zm10.6 0c.4.4 1 .4 1.4 0s.4-1 0-1.4l-.7-.7c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4l.7.7zm-10.6-10.6c.4.4 1 .4 1.4 0s.4-1 0-1.4l-.7-.7c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4l.7.7z"/>
-                </svg>
-            </button>
-        </div>
+
     </header>
 
     <!-- Controls Column (Left) -->
@@ -1473,6 +1469,10 @@
     <iframe src="CableMaster _ Premium Cable Calculator.html" class="tool-iframe" onload="syncIframeThemes()"></iframe>
 </div>
 
+<div id="tab-ta501" class="tab-content">
+    <iframe src="ta501_calculator.html" class="tool-iframe" onload="syncIframeThemes()"></iframe>
+</div>
+
 <!-- Metric Guide Modal -->
 <div class="modal-overlay" id="metricModal">
     <div class="modal-box">
@@ -1670,10 +1670,7 @@
     const formulaDisplay = document.getElementById('formulaDisplay');
     const requirementsContainer = document.getElementById('requirementsContainer');
     
-    // Theme Elements
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    const themeSunIcon = document.getElementById('themeSunIcon');
-    const themeMoonIcon = document.getElementById('themeMoonIcon');
+    // Theme Elements (Global Only)
 
     // Modal Elements
     const metricModal = document.getElementById('metricModal');
@@ -1732,9 +1729,6 @@
                 calculate();
             });
         });
-
-        // Theme Toggle
-        themeToggleBtn.addEventListener('click', toggleTheme);
 
         // Modal Close
         modalCloseBtn.addEventListener('click', hideModal);
@@ -2425,13 +2419,9 @@
         if (theme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'light');
             theme = 'light';
-            themeSunIcon.style.display = 'block';
-            themeMoonIcon.style.display = 'none';
         } else {
             document.documentElement.setAttribute('data-theme', 'dark');
             theme = 'dark';
-            themeSunIcon.style.display = 'none';
-            themeMoonIcon.style.display = 'block';
         }
         
         // Recalculate & redraw simulation with new palettes
@@ -2544,13 +2534,7 @@ ${reqsMd}
         document.body.removeChild(link);
     }
 
-    // Tab Theme States (Road Class Calculator is dark by default, all others light/white)
-    const tabThemes = {
-        'tab-road-class': 'dark',
-        'tab-curve-spacing': 'light',
-        'tab-ti-simulation': 'light',
-        'tab-cable-calculator': 'light'
-    };
+
 
     function updateGlobalToggleBtnIcon(themeState) {
         const moonIcon = document.getElementById('globalThemeMoonIcon');
@@ -2565,18 +2549,21 @@ ${reqsMd}
         }
     }
 
-    // Sync themes to nested frames based on their individual tab theme state
+    // Sync themes to nested frames
     function syncIframeThemes() {
         document.querySelectorAll('.tool-iframe').forEach(iframe => {
+            const container = iframe.closest('.tab-content');
+            if (!container) return;
+            
+            const activeTheme = theme;
+            
+            if (iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'THEME_UPDATE', theme: activeTheme }, '*');
+            }
+            
             try {
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
                 if (!doc) return;
-                
-                const container = iframe.closest('.tab-content');
-                if (!container) return;
-                
-                const tabId = container.id;
-                const activeTheme = tabThemes[tabId] || 'light';
                 
                 doc.documentElement.setAttribute('data-theme', activeTheme);
                 
@@ -2591,7 +2578,7 @@ ${reqsMd}
                     iframe.contentWindow.calculate();
                 }
             } catch (e) {
-                console.warn("Could not sync theme for iframe:", iframe.src, e);
+                console.log('Cross-origin theme sync failed via direct DOM access, relying on postMessage.');
             }
         });
     }
@@ -2615,25 +2602,8 @@ ${reqsMd}
                 activeContent.classList.add('active');
             }
 
-            // Sync the outer page theme and global button icon to match the selected tab's theme
-            const activeTheme = tabThemes[targetId];
-            document.documentElement.setAttribute('data-theme', activeTheme);
-            updateGlobalToggleBtnIcon(activeTheme);
-
-            // Sync Road Class Calculator's internal theme variable if switching to it
+            // Recalculate Road Class Calculator internally if switching to it
             if (targetId === 'tab-road-class') {
-                theme = activeTheme; // sync index.html's global 'theme' variable
-                const moonIcon = document.getElementById('themeMoonIcon');
-                const sunIcon = document.getElementById('themeSunIcon');
-                if (moonIcon && sunIcon) {
-                    if (activeTheme === 'dark') {
-                        moonIcon.style.display = 'block';
-                        sunIcon.style.display = 'none';
-                    } else {
-                        moonIcon.style.display = 'none';
-                        sunIcon.style.display = 'block';
-                    }
-                }
                 calculate();
             }
             
@@ -2647,44 +2617,11 @@ ${reqsMd}
 
     // Global Theme Toggle Click Handler
     document.getElementById('globalThemeToggleBtn').addEventListener('click', () => {
-        const activeTabBtn = document.querySelector('.portal-tab.active');
-        const activeTabId = activeTabBtn ? activeTabBtn.getAttribute('data-target') : 'tab-road-class';
-
-        if (activeTabId === 'tab-road-class') {
-            // Trigger internal toggleTheme function of Road Class Calculator
-            toggleTheme();
-            // Sync tabThemes state with updated theme variable
-            tabThemes['tab-road-class'] = theme;
-            updateGlobalToggleBtnIcon(theme);
-        } else {
-            // Toggle iframe tab theme state
-            const currentTheme = tabThemes[activeTabId];
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            tabThemes[activeTabId] = newTheme;
-
-            // Set parent portal page theme
-            document.documentElement.setAttribute('data-theme', newTheme);
-            updateGlobalToggleBtnIcon(newTheme);
-
-            // Update the active iframe document
-            const activeContent = document.getElementById(activeTabId);
-            if (activeContent) {
-                const iframe = activeContent.querySelector('.tool-iframe');
-                if (iframe) {
-                    try {
-                        const doc = iframe.contentDocument || iframe.contentWindow.document;
-                        if (doc) {
-                            doc.documentElement.setAttribute('data-theme', newTheme);
-                        }
-                        if (iframe.contentWindow.update) iframe.contentWindow.update();
-                        if (iframe.contentWindow.updateSimulation) iframe.contentWindow.updateSimulation();
-                        if (iframe.contentWindow.calculate) iframe.contentWindow.calculate();
-                    } catch (e) {
-                        console.warn("Error updating iframe theme on toggle:", e);
-                    }
-                }
-            }
-        }
+        // Toggle the global theme variable (this updates document theme, syncs iframes, and recalculates)
+        toggleTheme();
+        
+        // Update the global toggle icon
+        updateGlobalToggleBtnIcon(theme);
     });
 
     // Run setup on window load
